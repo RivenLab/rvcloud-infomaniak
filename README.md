@@ -21,19 +21,10 @@ Source openrc.sh file
 ```bash
 source load_env/openrc.sh
 ```
-
-Create s3-env.sh file and add the following content:
+Export S3 credentials
 ```bash
-#!/usr/bin/env bash
-
 export AWS_ACCESS_KEY_ID="<AWS_ACCESS_KEY_ID>"
 export AWS_SECRET_ACCESS_KEY="<AWS_SECRET_ACCESS_KEY>"
-export AWS_DEFAULT_REGION="<AWS_DEFAULT_REGION>"
-export AWS_ENDPOINT_URL_S3="<S3_ENDPOINT_URL>"
-```
-Then source it
-```bash
-source load_env/s3-env.sh
 ```
 
 ## 3 Run Terraform commands

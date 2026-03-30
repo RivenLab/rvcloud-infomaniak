@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Fetching instances (JSON mode)..."
+echo "Fetching instances..."
 
 declare -a ALL_INSTANCES
 declare -a ALL_LABELS
