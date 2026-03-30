@@ -22,14 +22,29 @@ variable "external_network_name" {
   type        = string
 }
 
+variable "internet_cidr" {
+  description = "CIDR block for the Internet subnet"
+  type        = string
+}
+
 variable "intranet_cidr" {
   description = "CIDR block for the Intranet subnet"
   type        = string
 }
 
-# Bastion Proxy Configuration
-variable "bastion_proxy_flavor" {
-  description = "Flavor to use for the Bastion Proxy VPN gateway"
+# OPNsense Configuration
+variable "opnsense_internet_ip" {
+  description = "Static IP on the Internet network for OPNsense WAN"
+  type        = string
+}
+
+variable "opnsense_intranet_ip" {
+  description = "Static IP on the Intranet network for OPNsense LAN"
+  type        = string
+}
+
+variable "opnsense_flavor" {
+  description = "Flavor to use for the OPNsense VPN gateway"
   type        = string
 }
 
@@ -49,11 +64,6 @@ variable "linux_image_regex" {
 }
 
 variable "linux_volume_size" {
-  description = "Size of the root volume in GB"
-  type        = number
-}
-
-variable "bastion_volume_size" {
   description = "Size of the root volume in GB"
   type        = number
 }

@@ -4,20 +4,32 @@ data "openstack_networking_network_v2" "ext_floating" {
 }
 
 # Networks
+resource "openstack_networking_network_v2" "internet_net" {
+  name           = "Internet"
+  admin_state_up = true
+}
+
 resource "openstack_networking_network_v2" "intranet_net" {
   name           = "Intranet"
   admin_state_up = true
 }
 
 # Subnets
+resource "openstack_networking_subnet_v2" "internet_subnet" {
+  name            = "Internet-subnet"
+  network_id      = openstack_networking_network_v2.internet_net.id
+  cidr            = var.internet_cidr
+  ip_version      = 4
+  dns_nameservers = ["1.1.1.1", "8.8.8.8"]
+}
 
 resource "openstack_networking_subnet_v2" "intranet_subnet" {
   name            = "Intranet-subnet"
   network_id      = openstack_networking_network_v2.intranet_net.id
   cidr            = var.intranet_cidr
-  enable_dhcp     = true
   ip_version      = 4
   dns_nameservers = ["1.1.1.1", "8.8.8.8"]
+  gateway_ip      = var.opnsense_intranet_ip
 }
 
 # Router
@@ -28,40 +40,37 @@ resource "openstack_networking_router_v2" "lan_router" {
 
 resource "openstack_networking_router_interface_v2" "lan_router_interface" {
   router_id = openstack_networking_router_v2.lan_router.id
-  subnet_id = openstack_networking_subnet_v2.intranet_subnet.id
+  subnet_id = openstack_networking_subnet_v2.internet_subnet.id
 }
 
 # ---------------------------------------------------------------------------- #
 #                                Security Groups                               #
 # ---------------------------------------------------------------------------- #
 
-# Bastion Proxy Security Group
-resource "openstack_networking_secgroup_v2" "bastion_proxy_sg" {
-  name                 = "bastion-proxy-sg"
-  description          = "Security group for Bastion Proxy"
+# OPNsense Edge Gateway Security Group
+resource "openstack_networking_secgroup_v2" "opnsense_sg" {
+  name                 = "opnsense-sg"
+  description          = "Security group for Edge Gateway OPNsense"
   delete_default_rules = true
 }
 
-resource "openstack_networking_secgroup_rule_v2" "bastion_proxy_sg_rules" {
+resource "openstack_networking_secgroup_rule_v2" "opnsense_sg_rules" {
   for_each = {
-    "ssh"       = { protocol = "tcp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = 22, port_max = 22 }
-    "http"      = { protocol = "tcp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = 80, port_max = 80 }
-    "https"     = { protocol = "tcp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = 443, port_max = 443 }
-    "openvpn"   = { protocol = "udp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = 1194, port_max = 1194 }
-    "wireguard" = { protocol = "udp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = 51820, port_max = 51820 }
-    "icmp"      = { protocol = "icmp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress", port_min = null, port_max = null }
-    "out4"      = { protocol = null, remote_ip_prefix = "0.0.0.0/0", direction = "egress", port_min = null, port_max = null, ethertype = "IPv4" }
-    "out6"      = { protocol = null, remote_ip_prefix = "::/0", direction = "egress", port_min = null, port_max = null, ethertype = "IPv6" }
+    "tcp"  = { protocol = "tcp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress" }
+    "udp"  = { protocol = "udp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress" }
+    "icmp" = { protocol = "icmp", remote_ip_prefix = "0.0.0.0/0", direction = "ingress" }
+    "esp"  = { protocol = "51", remote_ip_prefix = "0.0.0.0/0", direction = "ingress" }
+    "ah"   = { protocol = "50", remote_ip_prefix = "0.0.0.0/0", direction = "ingress" }
+    "out4" = { protocol = null, remote_ip_prefix = "0.0.0.0/0", direction = "egress", ethertype = "IPv4" }
+    "out6" = { protocol = null, remote_ip_prefix = "::/0", direction = "egress", ethertype = "IPv6" }
   }
 
-  description       = "Bastion Proxy Rules"
+  description       = "Allow all traffic in and out"
   direction         = each.value.direction
   ethertype         = lookup(each.value, "ethertype", "IPv4")
   protocol          = each.value.protocol
-  port_range_min    = each.value.port_min
-  port_range_max    = each.value.port_max
   remote_ip_prefix  = each.value.remote_ip_prefix
-  security_group_id = openstack_networking_secgroup_v2.bastion_proxy_sg.id
+  security_group_id = openstack_networking_secgroup_v2.opnsense_sg.id
 }
 
 # Linux Backend Servers Security Group

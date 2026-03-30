@@ -59,3 +59,10 @@ terraform output
 ```bash
 terraform destroy -auto-approve
 ```
+
+## Retrieve OPNsense/Winddows password
+To retrieve opnsense or windows root password use this command:
+```bash
+python3 scripts/get_instance_password.py
+```
+select the instance name from the list then enter the private ssh key path. The script will output the password.

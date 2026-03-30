@@ -57,8 +57,8 @@ resource "openstack_compute_instance_v2" "linux_vms" {
   flavor_id         = data.openstack_compute_flavor_v2.linux_flavors[each.key].id
   availability_zone = each.value.availability_zone
   key_pair          = openstack_compute_keypair_v2.linux_rsa_keypair.name
-  user_data = base64encode(templatefile("${path.module}/data/cloud-init.yaml", {
-    ssh_public_key = var.ssh_public_key
+  user_data         = base64encode(templatefile("${path.module}/data/cloud-init.yaml", {
+    ssh_public_key  = var.ssh_public_key
   }))
 
   block_device {
