@@ -10,8 +10,8 @@ variable "password_rsa_key" {
   sensitive   = true
 }
 
-variable "ubuntu_password_hash" {
-  description = "Hashed password for Ubuntu user"
+variable "linux_password_hash" {
+  description = "Hashed password for Linux user"
   type        = string
   sensitive   = true
 }

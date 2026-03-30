@@ -1,7 +1,7 @@
 # Credentials & Keys
 password_rsa_key  = "ssh-rsa" # REPLACE with actual key
 ssh_public_key      = "ssh-ed25519"
-ubuntu_password_hash = ""                        # Keep empty if not using passwords, or replace with hash
+linux_password_hash = ""                        # Keep empty if not using passwords, or replace with hash
 
 # Network Configuration
 external_network_name = "ext-floating1"
