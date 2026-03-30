@@ -4,7 +4,7 @@
 * openstack
 * nova cli
 
-## 1 Installation
+## Installation
 ##### Install OpenStack CLI
 ```bash
 pipx install python-openstackclient
@@ -14,7 +14,7 @@ pipx install python-openstackclient
 pipx install python-novaclient
 ```
 
-## 2 Load environment variables
+## Load environment variables
 Download the openrc file from the horizon interface. Place it in the load_env directory.
 
 Source openrc.sh file
@@ -27,7 +27,13 @@ export AWS_ACCESS_KEY_ID="<AWS_ACCESS_KEY_ID>"
 export AWS_SECRET_ACCESS_KEY="<AWS_SECRET_ACCESS_KEY>"
 ```
 
-## 3 Run Terraform commands
+## Copy and edit tfvars file
+```bash
+cp terraform.tfvars.example terraform.tfvars
+nano terraform.tfvars
+```
+
+## Run Terraform commands
 ### Terraform commands
 ##### 1. Init
 ```bash
@@ -54,7 +60,7 @@ terraform output
 terraform destroy -auto-approve
 ```
 
-## 4 Retrieve OPNsense/Winddows password
+## Retrieve OPNsense/Winddows password
 To retrieve opnsense or windows root password use this command:
 ```bash
 python3 scripts/get_instance_password.py

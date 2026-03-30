@@ -1,0 +1,26 @@
+#cloud-config
+
+# Update and upgrade packages on first boot
+package_update: true
+package_upgrade: true
+
+# Disable root login and password auth (SSH hardening)
+disable_root: true
+ssh_pwauth: false
+
+# Create user accounts
+users:
+  - name: ansible
+    gecos: Ansible User
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPGbln1BDXuI6na/vo/ZLXLFdPYFHiirgudKvSgmo7qRI6+Wlh+jjjnzjOKSbwSX/dXjIfMV1wSTDukUYPYk+eu5jCg9PmujkjLTUXMgEbIRUzKiTbXrDzHaGvneFj7Idco9vbIO7bZO9j21SNj1wViYyVTN8FhMU53OKwrR8+zRzlMujsvwCMqURWdJhAk4sz8kes4xd018Z8znNUORWxwZ/a5GUpqa5XeMm2UoEFSVVClyxYahrz3aN5br3FzyeWebXHUfSDe/4ng4/EH9GJK1AAZpfuwtntTnG1p9gLOgzWW5FrgFUTvKnjUNZFIbawKqjrLQ57rdJeSihX1SmF4a4KYKN6iVZeW8u82U6/HCveh/jq3Tr8IDEqfMEipDnLtNwqLIvgywOsU2c3kkYsDwRcRbAM0NSz++98Rc5jGFwF8Nc2jtD05cUHVkp04KuF/ud0CnzdCXJUJGpNSLNzmVNlQ55sHD/A6qr/ntE9sCPccpVkVB2cb0hs/RSueoZa2SFDfKRy5iFc7CI8A1CotGhN3LRcCzBWFXgwZ2epEJFiUKUIOg1+hRk0dk2SWdnDhTRBWYSh0/jq6Zx7d+f1IXYYwFCB4X11HLjC1VHTvlVBkpzzy6+g+hlfO1m3iZHBIMzO8b66NEuwXsW8iWeTT4x+lTy4IaGw37rrCaK3jQ== dragon@jumper
+
+# Install packages
+packages:
+  - curl
+  - wget
+  - git
+  - nano
