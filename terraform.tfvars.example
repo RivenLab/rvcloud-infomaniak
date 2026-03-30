@@ -1,0 +1,37 @@
+# Credentials & Keys
+password_rsa_key  = "ssh-rsa" # REPLACE with actual key
+ssh_public_key      = "ssh-ed25519"
+ubuntu_password_hash = ""                        # Keep empty if not using passwords, or replace with hash
+
+# Network Configuration
+external_network_name = "ext-floating1"
+internet_cidr         = "10.0.0.0/24"
+intranet_cidr         = "10.80.0.0/24"
+
+# OPNsense Gateway Configuration
+opnsense_internet_ip = "10.0.0.254"
+opnsense_intranet_ip = "10.80.0.254"
+opnsense_flavor      = "a2-ram4-disk20-perf1"
+
+# Standard Linux VMs Provisioning
+linux_image_regex = "^Ubuntu 24.04 LTS"
+linux_volume_size = 20
+
+linux_vms = {
+  "instance-1" = {
+    flavor            = "a2-ram4-disk0"
+    availability_zone = "az-1"
+    static_ip         = null # DHCP Mode enabled for dynamic provisioning
+  }
+  "instance-2" = {
+    flavor            = "a2-ram4-disk0"
+    availability_zone = "az-2"
+    static_ip         = "10.80.0.10"
+  }
+  # Example to configure a static server:
+  # "instance-static" = {
+  #   flavor            = "a4-ram8-disk0"
+  #   availability_zone = "az-1"
+  #   static_ip         = "10.80.0.10"
+  # }
+}
