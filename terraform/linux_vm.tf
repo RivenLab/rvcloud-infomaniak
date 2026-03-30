@@ -57,6 +57,7 @@ resource "openstack_compute_instance_v2" "linux_vms" {
   flavor_id         = data.openstack_compute_flavor_v2.linux_flavors[each.key].id
   availability_zone = each.value.availability_zone
   key_pair          = openstack_compute_keypair_v2.linux_rsa_keypair.name
+  user_data         = filebase64("./data/cloud-init.yaml")
 
   block_device {
     uuid                  = data.openstack_images_image_v2.linux_image.id

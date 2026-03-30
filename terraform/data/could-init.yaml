@@ -1,0 +1,26 @@
+#cloud-config
+
+# Update and upgrade packages on first boot
+package_update: true
+package_upgrade: true
+
+# Disable root login and password auth (SSH hardening)
+disable_root: true
+ssh_pwauth: false
+
+# Create user accounts
+users:
+  - name: ansible
+    gecos: Ansible User
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+# Install packages
+packages:
+  - curl
+  - wget
+  - git
+  - nano
