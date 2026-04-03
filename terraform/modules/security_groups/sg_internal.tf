@@ -4,6 +4,10 @@ resource "openstack_networking_secgroup_v2" "all_internal_sg" {
   delete_default_rules = true
 }
 
+locals {
+  linux_ingress_cidrs = [var.intranet_cidr, var.wg_subnet_cidr]
+}
+
 resource "openstack_networking_secgroup_rule_v2" "all_internal_sg_rules" {
   for_each          = toset(local.linux_ingress_cidrs)
   direction         = "ingress"
