@@ -57,3 +57,41 @@ variable "bastion_volume_size" {
   description = "Size of the root volume in GB"
   type        = number
 }
+
+# WireGuard Configuration
+variable "wg_server_address" {
+  description = "Wireguard server address (e.g. 10.8.0.1/24)"
+  type        = string
+}
+
+variable "wg_subnet_cidr" {
+  description = "Wireguard subnet CIDR (e.g. 10.8.0.0/24)"
+  type        = string
+}
+
+variable "wg_server_private_key" {
+  description = "Wireguard server private key"
+  type        = string
+  sensitive   = true
+}
+
+variable "wg_server_public_key" {
+  description = "Wireguard server public key"
+  type        = string
+}
+
+variable "wg_client_public_key" {
+  description = "Wireguard client public key"
+  type        = string
+}
+
+variable "wg_client_allowed_ips" {
+  description = "Wireguard client allowed IPs (e.g. 10.8.0.2/32)"
+  type        = string
+}
+
+variable "wg_preshared_key" {
+  description = "Wireguard preshared key"
+  type        = string
+  sensitive   = true
+}

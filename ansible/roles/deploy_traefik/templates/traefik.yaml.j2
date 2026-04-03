@@ -1,0 +1,64 @@
+# =============================================================================
+# ENTRYPOINTS - Ports d'écoute
+# =============================================================================
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+# =============================================================================
+# PROVIDERS - Sources de configuration dynamique
+# =============================================================================
+providers:
+  file:
+    directory: "{{ traefik_config_dir }}/conf.d"
+    watch: true
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: "{{ traefik_docker_network }}"
+
+# =============================================================================
+# API ET DASHBOARD
+# =============================================================================
+api:
+  dashboard: true
+  insecure: false
+
+# =============================================================================
+# CERTIFICATS ACME (Let's Encrypt with Cloudflare DNS Challenge)
+# =============================================================================
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "admin@{{ traefik_app_domain }}"
+      storage: "{{ traefik_config_dir }}/acme.json"
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+log:
+  level: INFO
+  filePath: "{{ traefik_log_dir }}/traefik.log"
+  format: json
+
+accessLog:
+  filePath: "{{ traefik_log_dir }}/access.log"
+  format: json
+  filters:
+    statusCodes:
+      - "400-599"

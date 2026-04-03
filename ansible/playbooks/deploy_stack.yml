@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: deploy_docker
+      tags: ['docker']
+
+    - role: deploy_traefik
+      tags: ['traefik']

@@ -9,6 +9,7 @@ intranet_cidr         = "10.92.0.0/24"
 
 # Bastion Proxy Configuration
 bastion_proxy_flavor = "a2-ram4-disk20-perf1"
+bastion_volume_size  = 20
 
 # Standard Linux VMs Provisioning
 linux_image_regex = "^Ubuntu 24.04 LTS"
@@ -32,3 +33,14 @@ linux_vms = {
   #   static_ip         = "10.92.0.10"
   # }
 }
+
+# WireGuard Configuration
+wg_subnet_cidr        = ""
+wg_server_address     = ""
+wg_client_allowed_ips = ""
+
+wg_server_private_key = ""
+wg_server_public_key  = ""
+
+wg_client_public_key = ""
+wg_preshared_key     = "" # Keep empty ("") if not using preshared key, or optionally replace

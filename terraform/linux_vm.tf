@@ -27,7 +27,13 @@ resource "openstack_networking_port_v2" "linux_ports" {
   network_id            = openstack_networking_network_v2.intranet_net.id
   admin_state_up        = true
   port_security_enabled = true
-  security_group_ids    = [openstack_networking_secgroup_v2.linux_sg.id]
+  security_group_ids = [
+    module.security_groups.ssh_internal_sg_id,
+    module.security_groups.consul_sg_id,
+    module.security_groups.allow_egress_sg_id,
+    module.security_groups.all_internal_sg_id,
+    module.security_groups.icmp_sg_id
+  ]
 
   # Dynamic Block to handle static IPs if specified, else OpenStack defaults to DHCP.
   dynamic "fixed_ip" {
@@ -75,14 +81,4 @@ resource "openstack_compute_instance_v2" "linux_vms" {
   }
 }
 
-# ---------------------------------------------------------------------------- #
-#                                    Outputs                                   #
-# ---------------------------------------------------------------------------- #
 
-output "linux_vms_internal_ips" {
-  description = "Assigned IPS of the backend Linux VMs"
-  value = {
-    for name, port in openstack_networking_port_v2.linux_ports :
-    name => port.all_fixed_ips[0]
-  }
-}

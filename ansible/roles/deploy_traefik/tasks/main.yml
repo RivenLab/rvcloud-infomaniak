@@ -1,0 +1,100 @@
+---
+# tasks file for deploy_traefik
+
+- name: Create Traefik group
+  ansible.builtin.group:
+    name: "{{ traefik_group }}"
+    state: present
+    system: true
+
+- name: Create Traefik user
+  ansible.builtin.user:
+    name: "{{ traefik_user }}"
+    group: "{{ traefik_group }}"
+    state: present
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Add Traefik user to docker group
+  ansible.builtin.user:
+    name: "{{ traefik_user }}"
+    groups: docker
+    append: true
+  notify: Restart Traefik
+
+- name: Create Traefik Docker network
+  community.docker.docker_network:
+    name: "{{ traefik_docker_network }}"
+    state: present
+
+- name: Create Traefik directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_group }}"
+    mode: '0755'
+  loop:
+    - "{{ traefik_config_dir }}"
+    - "{{ traefik_config_dir }}/conf.d"
+    - "{{ traefik_log_dir }}"
+
+- name: Create acme.json file
+  ansible.builtin.file:
+    path: "{{ traefik_config_dir }}/acme.json"
+    state: touch
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_group }}"
+    mode: '0600'
+    modification_time: preserve
+    access_time: preserve
+
+- name: Download and unarchive Traefik binary
+  ansible.builtin.unarchive:
+    src: "https://github.com/traefik/traefik/releases/download/{{ traefik_version }}/traefik_{{ traefik_version }}_linux_amd64.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+    creates: "/tmp/traefik"
+
+- name: Move Traefik binary to bin directory
+  ansible.builtin.copy:
+    src: "/tmp/traefik"
+    dest: "{{ traefik_bin_dir }}/traefik"
+    remote_src: true
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: ConfigTemplate static configuration
+  ansible.builtin.template:
+    src: "traefik.yaml.j2"
+    dest: "{{ traefik_config_dir }}/traefik.yaml"
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_group }}"
+    mode: '0644'
+  notify: Restart Traefik
+
+- name: ConfigTemplate dashboard dynamic configuration
+  ansible.builtin.template:
+    src: "dashboard.yaml.j2"
+    dest: "{{ traefik_config_dir }}/conf.d/dashboard.yaml"
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_group }}"
+    mode: '0644'
+
+- name: ConfigTemplate Traefik systemd service
+  ansible.builtin.template:
+    src: "traefik.service.j2"
+    dest: "/etc/systemd/system/traefik.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Traefik
+
+- name: Enable and start Traefik service
+  ansible.builtin.systemd:
+    name: traefik
+    enabled: true
+    state: started
+    daemon_reload: true

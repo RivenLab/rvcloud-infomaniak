@@ -1,0 +1,41 @@
+# ---> Ansible
+*.retry
+
+# MacOS
+## Ignore desktop services files.
+**/.DS_Store
+
+# Certificates and Keys
+## Ignore certificates files.
+**/*.cer
+**/*.crt
+**/*.p7b
+## Ignore public key files
+**/*.pub
+
+*/__pycache__
+*.pyc
+.cache
+
+# Variables
+## Ignore var file
+group_vars/all.yml
+
+# Inventory
+## Ignore inventory file
+**/*.ini
+inventory/*.ini
+inventory/*.yml
+
+# Python
+## Ignore venv folder
+venv
+
+# Extra Playbooks
+## Ignore Extra playbooks
+/production.yml
+/development.yml
+/testing.yml
+/staging.yml
+
+

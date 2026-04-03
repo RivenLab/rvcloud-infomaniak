@@ -15,8 +15,14 @@ resource "openstack_networking_port_v2" "bastion_proxy_port" {
   name                  = "bastion-proxy-port"
   network_id            = openstack_networking_network_v2.intranet_net.id
   admin_state_up        = true
-  security_group_ids    = [openstack_networking_secgroup_v2.bastion_proxy_sg.id]
   port_security_enabled = true
+  security_group_ids = [
+    module.security_groups.ssh_internal_sg_id,
+    module.security_groups.wireguard_sg_id,
+    module.security_groups.proxy_sg_id,
+    module.security_groups.allow_egress_sg_id,
+    module.security_groups.icmp_sg_id
+  ]
 
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.intranet_subnet.id
@@ -62,8 +68,13 @@ resource "openstack_compute_instance_v2" "bastion_proxy" {
   image_id  = data.openstack_images_image_v2.bastion_image.id
   flavor_id = data.openstack_compute_flavor_v2.bastion_flavor.id
   key_pair  = openstack_compute_keypair_v2.bastion_rsa_keypair.name
-  user_data = base64encode(templatefile("${path.module}/data/cloud-init.yaml", {
-    ssh_public_key = var.ssh_public_key
+  user_data = base64encode(templatefile("${path.module}/data/cloud-init-bastion.yaml", {
+    ssh_public_key        = var.ssh_public_key
+    wg_server_address     = var.wg_server_address
+    wg_server_private_key = var.wg_server_private_key
+    wg_client_public_key  = var.wg_client_public_key
+    wg_client_allowed_ips = var.wg_client_allowed_ips
+    wg_preshared_key      = var.wg_preshared_key
   }))
 
   block_device {
@@ -83,22 +94,4 @@ resource "openstack_compute_instance_v2" "bastion_proxy" {
     openstack_networking_subnet_v2.intranet_subnet,
     openstack_networking_router_interface_v2.lan_router_interface
   ]
-}
-
-# ---------------------------------------------------------------------------- #
-#                                    Outputs                                   #
-# ---------------------------------------------------------------------------- #
-
-output "bastion_proxy_public_ip" {
-  value       = openstack_networking_floatingip_v2.bastion_floating.address
-  description = "The Floating public IP of the Bastion Proxy"
-}
-
-output "bastion_proxy_internal_ip" {
-  value       = openstack_networking_port_v2.bastion_proxy_port.all_fixed_ips[0]
-  description = "The intranet-facing attached IP"
-}
-
-output "bastion_proxy_ssh_access" {
-  value = "ssh -i ~/.ssh/id_rsa root@$${openstack_networking_floatingip_v2.bastion_floating.address}"
 }

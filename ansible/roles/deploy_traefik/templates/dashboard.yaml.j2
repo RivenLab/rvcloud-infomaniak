@@ -1,0 +1,17 @@
+http:
+  routers:
+    dashboard:
+      rule: "Host(`{{ traefik_app_domain }}`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+      service: api@internal
+      entryPoints:
+        - websecure
+      middlewares:
+        - dashboard-auth
+      tls:
+        certResolver: letsencrypt
+
+  middlewares:
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "{{ traefik_dashboard_credentials }}"

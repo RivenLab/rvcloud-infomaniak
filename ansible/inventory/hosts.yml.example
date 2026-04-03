@@ -1,0 +1,6 @@
+all:
+  children:
+    docker_server:
+      hosts:
+        bastion-proxy:
+          ansible_host: IP

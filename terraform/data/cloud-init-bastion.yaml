@@ -1,0 +1,77 @@
+#cloud-config
+
+# Update and upgrade packages on first boot
+package_update: true
+package_upgrade: true
+
+# Disable root login and password auth (SSH hardening)
+disable_root: true
+ssh_pwauth: false
+
+# Create ansible user
+users:
+  - name: ansible
+    gecos: "Ansible User"
+    groups: [sudo, wheel]
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+# Install packages
+packages:
+  - curl
+  - wget
+  - git
+  - nano
+  - nftables
+  - wireguard
+  - wireguard-tools
+
+# Configure Wireguard
+write_files:
+  - path: /etc/wireguard/wg_up.nft
+    permissions: '0600'
+    owner: root:root
+    content: |
+      table ip wg-ipv4 {
+        chain postrouting {
+          type nat hook postrouting priority 100; policy accept;
+          ip saddr ${wg_client_allowed_ips} masquerade
+        }
+        chain forward {
+          type filter hook forward priority 0; policy accept;
+          iifname "wg0" accept
+          oifname "wg0" accept
+        }
+      }
+  - path: /etc/wireguard/wg_down.nft
+    permissions: '0600'
+    owner: root:root
+    content: |
+      delete table ip wg-ipv4
+  - path: /etc/wireguard/wg0.conf
+    permissions: '0600'
+    owner: root:root
+    content: |
+      [Interface]
+      Address = ${wg_server_address}
+      ListenPort = 51820
+      PrivateKey = ${wg_server_private_key}
+      PostUp = nft -f /etc/wireguard/wg_up.nft
+      PostDown = nft -f /etc/wireguard/wg_down.nft
+
+      [Peer]
+      PublicKey = ${wg_client_public_key}
+      %{ if wg_preshared_key != "" }PresharedKey = ${wg_preshared_key}
+      %{ endif }AllowedIPs = ${wg_client_allowed_ips}
+      PersistentKeepalive = 25
+
+runcmd:
+  # Enable IP forwarding
+  - sysctl -w net.ipv4.ip_forward=1
+  # Make IP forwarding persistent
+  - echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/99-wireguard.conf
+  # Enable and start Wireguard interface wg0
+  - systemctl enable wg-quick@wg0
+  - systemctl start wg-quick@wg0

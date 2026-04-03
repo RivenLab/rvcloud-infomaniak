@@ -1,0 +1,12 @@
+---
+# defaults file for deploy_traefik
+traefik_version: "v3.6.12"
+traefik_bin_dir: "/usr/local/bin"
+traefik_config_dir: "/etc/traefik"
+traefik_log_dir: "/var/log/traefik"
+traefik_user: "traefik"
+traefik_group: "traefik"
+traefik_cf_api_token: "{{ cf_api_token }}"
+traefik_app_domain: "traefik.{{ app_domain }}"
+traefik_dashboard_credentials: "{{ dashboard_credentials }}"
+traefik_docker_network: "traefik-network"

@@ -1,0 +1,8 @@
+---
+# Global Variables
+
+app_domain: "rvlab.xyz"
+
+# Traefik Data
+cf_api_token: ""
+dashboard_credentials: "" # Provide htaccess basic auth password
