@@ -10,7 +10,6 @@ resource "openstack_networking_network_v2" "intranet_net" {
 }
 
 # Subnets
-
 resource "openstack_networking_subnet_v2" "intranet_subnet" {
   name            = "Intranet-subnet"
   network_id      = openstack_networking_network_v2.intranet_net.id
@@ -29,14 +28,4 @@ resource "openstack_networking_router_v2" "lan_router" {
 resource "openstack_networking_router_interface_v2" "lan_router_interface" {
   router_id = openstack_networking_router_v2.lan_router.id
   subnet_id = openstack_networking_subnet_v2.intranet_subnet.id
-}
-
-# ---------------------------------------------------------------------------- #
-#                                Security Groups                               #
-# ---------------------------------------------------------------------------- #
-
-module "security_groups" {
-  source         = "./modules/security_groups"
-  intranet_cidr  = var.intranet_cidr
-  wg_subnet_cidr = var.wg_subnet_cidr
 }

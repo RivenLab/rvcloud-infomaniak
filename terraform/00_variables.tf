@@ -27,35 +27,16 @@ variable "intranet_cidr" {
   type        = string
 }
 
-# Bastion Proxy Configuration
+# Flavor configurations
 variable "bastion_proxy_flavor" {
   description = "Flavor to use for the Bastion Proxy VPN gateway"
   type        = string
 }
 
-# Standard Linux VMs Configuration
-variable "linux_vms" {
-  description = "Map of standard Linux VMs to provision"
-  type = map(object({
-    flavor            = string
-    availability_zone = string
-    static_ip         = optional(string) # Set to null to use DHCP for dynamic orchestration
-  }))
-}
-
-variable "linux_image_regex" {
-  description = "Regex to match the Linux image name"
+variable "instance_flavor" {
+  description = "Flavor to use for the default instances"
   type        = string
-}
-
-variable "linux_volume_size" {
-  description = "Size of the root volume in GB"
-  type        = number
-}
-
-variable "bastion_volume_size" {
-  description = "Size of the root volume in GB"
-  type        = number
+  default     = "a1-ram2-disk0"
 }
 
 # WireGuard Configuration
