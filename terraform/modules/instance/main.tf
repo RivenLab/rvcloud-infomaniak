@@ -35,7 +35,10 @@ resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
 resource "openstack_compute_instance_v2" "instance" {
   count     = var.instance_count
   name      = "${var.instance_name}-${count.index + 1}"
-  image_id  = data.openstack_images_image_v2.image.id
+  # image_id must NOT be set when using block_device with destination_type = "volume".
+  # OpenStack reports it as "Attempt to boot from volume - no image supplied" on the
+  # instance, which causes Terraform to detect drift on every subsequent plan.
+  # The image reference lives exclusively inside the block_device block below.
   flavor_id = data.openstack_compute_flavor_v2.flavor.id
   key_pair  = var.instance_key_pair
 
